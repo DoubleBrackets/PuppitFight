@@ -1,14 +1,14 @@
 {
   "aggressiveness" : {
     "actions" : {
-      "moving" : 0.15,
+      "moving" : 0.2,
       "nothing" : -0.1,
       "resting" : 0.01
     },
     "modifiers" : {
       "towards" : 1,
       "away" : -1,
-      "sideways" : -0.2,
+      "sideways" : -0.4,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -18,14 +18,14 @@
   },
   "fear" : {
     "actions" : {
-      "moving" : 0.15,
+      "moving" : 0.2,
       "nothing" : 0.025,
       "resting" : 0.01
     },
     "modifiers" : {
       "towards" : -1.0,
       "away" : 1.0,
-      "sideways" : -0.2,
+      "sideways" : -0.4,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -40,9 +40,9 @@
       "resting" : 0.01
     },
     "modifiers" : {
-      "towards" : -0.5,
-      "away" : -0.3,
-      "sideways" : 0.75,
+      "towards" : -0.6,
+      "away" : -0.4,
+      "sideways" : 0.8,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
