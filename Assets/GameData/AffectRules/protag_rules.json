@@ -1,65 +1,48 @@
 {
-  "joy" : {
+  "aggressiveness" : {
     "actions" : {
-      "open_flow" : 0.007,
-      "closed_flow" : -0.005,
-      "projected_energy" : -0.002,
-      "resting" : -0.001
+      "moving" : 0.15,
+      "nothing" : -0.1,
+      "resting" : 0.01
     },
     "modifiers" : {
-      "tempo_up" : 1.5,
-      "tempo_down" : 0.5,
+      "towards" : 1,
+      "away" : -1,
+      "sideways" : -0.2,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
-      "worry" : 100
+      "wariness" : 100
     },
     "equilibrium_point" : 0.5
   },
-  "anger" : {
+  "fear" : {
     "actions" : {
-      "open_flow" : -0.004,
-      "closed_flow" : 0.0035,
-      "projected_energy" : 0.007,
-      "resting" : 0.001
+      "moving" : 0.15,
+      "nothing" : 0.025,
+      "resting" : 0.01
     },
     "modifiers" : {
-      "tempo_up" : 0.5,
-      "tempo_down" : 1.5,
+      "towards" : -1.0,
+      "away" : 1.0,
+      "sideways" : -0.2,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
-      "joy" : 100
+      "wariness" : 100
     },
     "equilibrium_point" : 0.5
   },
-  "sadness" : {
+  "wariness" : {
     "actions" : {
-      "open_flow" : -0.004,
-      "closed_flow" : 0.009,
-      "projected_energy" : -0.002,
-      "resting" : 0.0001
+      "moving" : 0.1,
+      "nothing" : -0.01,
+      "resting" : 0.01
     },
     "modifiers" : {
-      "tempo_up" : 0.5,
-      "tempo_down" : 1.5,
-      "neutral" : 1.0
-    },
-    "adjacent_affects" : {
-      "anger" : 100
-    },
-    "equilibrium_point" : 0.5
-  },
-  "worry" : {
-    "actions" : {
-      "open_flow" : -0.008,
-      "closed_flow" : 0.007,
-      "projected_energy" : 0.001,
-      "resting" : 0.001
-    },
-    "modifiers" : {
-      "tempo_up" : 1.5,
-      "tempo_down" : 0.5,
+      "towards" : -0.5,
+      "away" : -0.3,
+      "sideways" : 0.75,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -67,38 +50,20 @@
     },
     "equilibrium_point" : 0.5
   },
-  "fear" : {
+  "confusion" : {
     "actions" : {
-      "open_flow" : 0.008,
-      "closed_flow" : 0.002,
-      "projected_energy" : -0.006,
-      "resting" : 0.001
+      "moving" : -0.05,
+      "nothing" : 0.15,
+      "resting" : 0.01
     },
     "modifiers" : {
-      "tempo_up" : 0.5,
-      "tempo_down" : 1.5,
+      "towards" : 1.0,
+      "away" : 1.0,
+      "sideways" : 1.0,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
-      "joy" : 100
-    },
-    "equilibrium_point" : 0.5
-  },
-  "love" : {
-    "actions" : {
-      "open_flow" : 0.001,
-      "closed_flow" : -0.009,
-      "projected_energy" : 0.007,
-      "resting" : 0.001
-    },
-    "modifiers" : {
-      "tempo_up" : 1.5,
-      "tempo_down" : 0.5,
-      "neutral" : 1.0
-    },
-    "adjacent_affects" : {
-      "joy" : 95,
-      "anger": 5
+      "wariness" : 100
     },
     "equilibrium_point" : 0.5
   }

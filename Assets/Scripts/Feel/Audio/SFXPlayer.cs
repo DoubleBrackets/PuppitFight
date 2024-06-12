@@ -20,8 +20,9 @@ public class SFXPlayer : MonoBehaviour
         }
     }
 
-    public void PlaySFX(AudioClip clip, float volume = 1f)
+    public void PlaySFX(AudioClip clip, float volume = 1f, Vector2 pos = default)
     {
+        _audioSource.transform.position = pos;
         _audioSource.PlayOneShot(clip, volume);
     }
 }

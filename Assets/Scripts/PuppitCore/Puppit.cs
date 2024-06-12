@@ -105,4 +105,9 @@ public class Puppit : MonoBehaviour
         GUILayout.Label($"Modifier: {_modifier}");
         GUILayout.Label($"Prevailing affect: {_affecter.GetPrevailingAffect(_affectVector)}");
     }
+
+    public string GetPrevailingAffect()
+    {
+        return _affecter.GetPrevailingAffect(_affectVector);
+    }
 }
