@@ -1,0 +1,105 @@
+{
+  "joy" : {
+    "actions" : {
+      "open_flow" : 0.007,
+      "closed_flow" : -0.005,
+      "projected_energy" : -0.002,
+      "resting" : -0.001
+    },
+    "modifiers" : {
+      "tempo_up" : 1.5,
+      "tempo_down" : 0.5,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "worry" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "anger" : {
+    "actions" : {
+      "open_flow" : -0.004,
+      "closed_flow" : 0.0035,
+      "projected_energy" : 0.007,
+      "resting" : 0.001
+    },
+    "modifiers" : {
+      "tempo_up" : 0.5,
+      "tempo_down" : 1.5,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "joy" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "sadness" : {
+    "actions" : {
+      "open_flow" : -0.004,
+      "closed_flow" : 0.009,
+      "projected_energy" : -0.002,
+      "resting" : 0.0001
+    },
+    "modifiers" : {
+      "tempo_up" : 0.5,
+      "tempo_down" : 1.5,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "anger" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "worry" : {
+    "actions" : {
+      "open_flow" : -0.008,
+      "closed_flow" : 0.007,
+      "projected_energy" : 0.001,
+      "resting" : 0.001
+    },
+    "modifiers" : {
+      "tempo_up" : 1.5,
+      "tempo_down" : 0.5,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "fear" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "fear" : {
+    "actions" : {
+      "open_flow" : 0.008,
+      "closed_flow" : 0.002,
+      "projected_energy" : -0.006,
+      "resting" : 0.001
+    },
+    "modifiers" : {
+      "tempo_up" : 0.5,
+      "tempo_down" : 1.5,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "joy" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "love" : {
+    "actions" : {
+      "open_flow" : 0.001,
+      "closed_flow" : -0.009,
+      "projected_energy" : 0.007,
+      "resting" : 0.001
+    },
+    "modifiers" : {
+      "tempo_up" : 1.5,
+      "tempo_down" : 0.5,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "joy" : 95,
+      "anger": 5
+    },
+    "equilibrium_point" : 0.5
+  }
+}

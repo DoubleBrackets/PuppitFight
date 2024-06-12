@@ -1,399 +1,377 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using SimpleJSON;
+using Random = System.Random;
 #if NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 using System.Text.Json;
 #endif
-using SimpleJSON;
 
 namespace Puppitor
 {
-
-    /*
-     * interior class for use as part of parsing a Puppitor rule file into a useable format by C#
-     * affectName should correspond to the key where the AffectEntry instance is stored
-     * adjacent_affects may be empty
-     * actions, modifiers, and equilibrium_point are the primary elements that should be accessed by an Affecter
-     * NOTE: AffectEntry uses snake_case for portability with JSON across languages, if you have a problem with that it's on you
-     */
+    /// <summary>
+    ///     Interior class for use as part of parsing a Puppitor rule file into a useable format by C#.
+    ///     AffectName should correspond to the key where the AffectEntry instance is stored.
+    ///     Adjacent_affects may be empty.
+    ///     Actions, modifiers, and equilibrium_point are the primary elements that should be accessed by an Affecter.
+    ///     NOTE: AffectEntry uses snake_case for portability with JSON across languages, if you have a problem with that it's
+    ///     on you.
+    /// </summary>
     public class AffectEntry
     {
         //public string affectName { get; set; }
-        public Dictionary<string, double> actions { get; set; }
-        public Dictionary<string, double> modifiers { get; set; }
-        public Dictionary<string, int> adjacent_affects { get; set; }
-        public double equilibrium_point { get; set; }
+        public Dictionary<string, double> Actions { get; set; }
+        public Dictionary<string, double> Modifiers { get; set; }
+        public Dictionary<string, int> AdjacentAffects { get; set; }
+        public double EquilibriumPoint { get; set; }
 
         public override string ToString()
         {
-            string result = "";
+            var result = "";
 
             //result += "\naffect: " + affectName;
 
             result += "\n\tactions:";
-            foreach (KeyValuePair<string, double> kvp in actions)
+            foreach (KeyValuePair<string, double> kvp in Actions)
             {
                 result += "\n\t\t" + kvp.Key + ": " + kvp.Value;
             }
 
             result += "\n\tmodifiers:";
-            foreach (KeyValuePair<string, double> kvp in modifiers)
+            foreach (KeyValuePair<string, double> kvp in Modifiers)
             {
                 result += "\n\t\t" + kvp.Key + ": " + kvp.Value;
             }
 
             result += "\n\tadjacent affects:";
-            foreach (KeyValuePair<string, int> affect in adjacent_affects)
+            foreach (KeyValuePair<string, int> affect in AdjacentAffects)
             {
                 result += "\n\t\t" + affect.Key + ": " + affect.Value;
             }
 
-            result += "\n\tequilibrium point: " + equilibrium_point +"\n";
+            result += "\n\tequilibrium point: " + EquilibriumPoint + "\n";
 
             return result;
         }
-
     }
 
-    /*
-     Affecter is a wrapper around a JSON object based dictionary of affects (see contents of the affect_rules directory for formatting details)
- 
-     By default Affecter clamps the values of an affect vector (dictionaries built using make_affect_vector) in the range of 0.0 to 1.0 and uses theatrical terminology, consistent with 
-     the default keys in action_key_map.py inside of the actual_action_states dictionary in the Action_Key_Map class
-    */
-
+    /// <summary>
+    ///     Affecter is a wrapper around a JSON object based dictionary of affects (see contents of the affect_rules directory
+    ///     for formatting details)
+    ///     By default Affecter clamps the values of an affect vector (dictionaries built using MakeAffectVector) in the
+    ///     range of 0.0 to 1.0 and uses theatrical terminology, consistent with
+    ///     the default keys in action_key_map.py inside of the actual_action_states dictionary in the Action_Key_Map class
+    /// </summary>
     public class Affecter
     {
-        public Dictionary<string, AffectEntry> affectRules;
-        public double floorValue;
-        public double ceilValue;
-        public string equilibriumClassAction;
-        public string? currentAffect;
-        public Random randomInstance;
-        public List<string> prevailingAffects;
-        public List<string> connectedAffects;
-        public List<string> affectList;
+        public string CurrentAffect { get; private set; }
 
-        public Affecter(string affectRulesJSON, double affectFloor = 0.0, double affectCeiling = 1.0, string equilibriumAction = "resting")
+        private readonly string _equilibriumClassAction;
+        private readonly double _ceilValue;
+        private readonly double _floorValue;
+
+        private readonly Random _randomInstance;
+
+        private readonly List<string> _affectNameList;
+        private readonly List<string> _connectedAffects;
+
+        private readonly bool _log;
+
+        public Dictionary<string, AffectEntry> AffectRules;
+
+        public Affecter(
+            string affectRulesJson,
+            double affectFloor = 0.0,
+            double affectCeiling = 1.0,
+            string equilibriumAction = "resting",
+            bool log = false)
         {
+            _log = log;
 
-            #if NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-                Console.WriteLine(affectRulesJSON);
-                affectRules = JsonSerializer.Deserialize<Dictionary<string, AffectEntry>>(affectRulesJSON);
-            #else
-                Console.WriteLine("Falling Back to SimpleJSON");
-                JSONClass affectRulesTemp = JSON.Parse(affectRulesJSON).AsObject;
+#if NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+            Log(affectRulesJSON);
+            affectRules = JsonSerializer.Deserialize<Dictionary<string, AffectEntry>>(affectRulesJSON);
+#else
+            Log("Falling Back to SimpleJSON");
+            JsonClass affectRulesTemp = Json.Parse(affectRulesJson).AsObject;
 
-                Console.WriteLine(affectRulesTemp.ToString());
+            Log(affectRulesTemp.ToString());
 
-                affectRules = new Dictionary<string, AffectEntry>();
+            AffectRules = new Dictionary<string, AffectEntry>();
 
-                ConvertRules(affectRulesTemp);
-            #endif
+            ConvertRules(affectRulesTemp);
+#endif
 
-            floorValue = affectFloor;
-            ceilValue = affectCeiling;
-            equilibriumClassAction = equilibriumAction;
-            currentAffect = null;
+            _floorValue = affectFloor;
+            _ceilValue = affectCeiling;
+            _equilibriumClassAction = equilibriumAction;
+            CurrentAffect = null;
 
-            foreach (KeyValuePair<string, AffectEntry> kvp in affectRules)
+            // set the initial affect to the one with the highest equilibrium point
+            foreach (KeyValuePair<string, AffectEntry> kvp in AffectRules)
             {
-                double entryEquilibrium = kvp.Value.equilibrium_point;
-                if(currentAffect == null)
+                double entryEquilibrium = kvp.Value.EquilibriumPoint;
+                if (CurrentAffect == null)
                 {
-                    currentAffect = kvp.Key;
+                    CurrentAffect = kvp.Key;
                 }
-                else if (entryEquilibrium > affectRules[currentAffect].equilibrium_point)
+                else if (entryEquilibrium > AffectRules[CurrentAffect].EquilibriumPoint)
                 {
-                    currentAffect = kvp.Key;
+                    CurrentAffect = kvp.Key;
                 }
             }
-            randomInstance = new Random();
 
-            foreach (KeyValuePair<string, AffectEntry> affectEntry in affectRules)
+            _randomInstance = new Random();
+
+            foreach (KeyValuePair<string, AffectEntry> affectEntry in AffectRules)
             {
-                Console.WriteLine(affectEntry.Value.ToString());
+                Log(affectEntry.Value.ToString());
             }
 
             // list of affects to be updated to avoid using elementAt()
-            affectList = new List<string>();
+            _affectNameList = new List<string>();
 
-            foreach(KeyValuePair<string, AffectEntry> entry in affectRules)
+            foreach (KeyValuePair<string, AffectEntry> entry in AffectRules)
             {
-                affectList.Add(entry.Key);
+                _affectNameList.Add(entry.Key);
             }
 
             // choice functions lists
-            connectedAffects = new List<string>();
-
+            _connectedAffects = new List<string>();
         }
 
-        /* 
-         * helper function for use when loading a Puppitor rule file
-         * converts a raw JSONClass into a dictionary of <string, AffectEntry> pairs to sandbox the usage of SimpleJSON to this file
-         * also to convert data to its proper format
-        */
-        private void ConvertRules(JSONClass affectRulesTemp)
+        /// <summary>
+        ///     Helper function for use when loading a Puppitor rule file.
+        ///     Converts a raw JSONClass into a dictionary of (string, AffectEntry)
+        ///     Pairs to sandbox the usage of SimpleJSON to this file.
+        ///     Also to convert data to its proper format
+        /// </summary>
+        /// <param name="affectRulesTemp"></param>
+        private void ConvertRules(JsonClass affectRulesTemp)
         {
-            foreach (KeyValuePair<string, JSONNode> nodeEntry in affectRulesTemp)
+            foreach (KeyValuePair<string, JsonNode> nodeEntry in affectRulesTemp)
             {
                 // make the new affect entry and setup containers
-                AffectEntry affectEntry = new AffectEntry();
+                var affectEntry = new AffectEntry();
                 //affectEntry.affectName = nodeEntry.Key;
-                affectEntry.equilibrium_point = Convert.ToDouble(nodeEntry.Value["equilibrium_point"]);
-                affectEntry.adjacent_affects = new Dictionary<string, int>();
-                affectEntry.actions = new Dictionary<string, double>();
-                affectEntry.modifiers = new Dictionary<string, double>();
+                affectEntry.EquilibriumPoint = Convert.ToDouble(nodeEntry.Value["equilibrium_point"]);
+                affectEntry.AdjacentAffects = new Dictionary<string, int>();
+                affectEntry.Actions = new Dictionary<string, double>();
+                affectEntry.Modifiers = new Dictionary<string, double>();
 
                 // populate each container with their corresponding data from the JSON file stored in affectRulesTemp
-                foreach (KeyValuePair<string, JSONNode> adjacencyEntry in nodeEntry.Value["adjacent_affects"].AsObject)
+                foreach (KeyValuePair<string, JsonNode> adjacencyEntry in nodeEntry.Value["adjacent_affects"].AsObject)
                 {
-                    int tempIntValue = Convert.ToInt32(adjacencyEntry.Value);
-                    affectEntry.adjacent_affects.Add(adjacencyEntry.Key, tempIntValue);
-                    //Console.WriteLine("{0}: {1}",adjacencyEntry.Key, affectEntry.adjacentAffects[adjacencyEntry.Key]);
+                    var tempIntValue = Convert.ToInt32(adjacencyEntry.Value);
+                    affectEntry.AdjacentAffects.Add(adjacencyEntry.Key, tempIntValue);
+                    //Log("{0}: {1}",adjacencyEntry.Key, affectEntry.adjacentAffects[adjacencyEntry.Key]);
                 }
 
-                foreach (KeyValuePair<string, JSONNode> actionEntry in nodeEntry.Value["actions"].AsObject)
+                foreach (KeyValuePair<string, JsonNode> actionEntry in nodeEntry.Value["actions"].AsObject)
                 {
-                    double tempDoubleVal = Convert.ToDouble(actionEntry.Value);
-                    affectEntry.actions.Add(actionEntry.Key, tempDoubleVal);
-                    //Console.WriteLine("{0}: {1}", actionEntry.Key, affectEntry.actions[actionEntry.Key]);
+                    var tempDoubleVal = Convert.ToDouble(actionEntry.Value);
+                    affectEntry.Actions.Add(actionEntry.Key, tempDoubleVal);
+                    //Log("{0}: {1}", actionEntry.Key, affectEntry.actions[actionEntry.Key]);
                 }
 
-                foreach (KeyValuePair<string, JSONNode> modEntry in nodeEntry.Value["modifiers"].AsObject)
+                foreach (KeyValuePair<string, JsonNode> modEntry in nodeEntry.Value["modifiers"].AsObject)
                 {
-                    double tempDoubleVal = Convert.ToDouble(modEntry.Value);
-                    affectEntry.modifiers.Add(modEntry.Key, tempDoubleVal);
-                    //Console.WriteLine("{0}: {1}", modEntry.Key, affectEntry.modifiers[modEntry.Key]);
+                    var tempDoubleVal = Convert.ToDouble(modEntry.Value);
+                    affectEntry.Modifiers.Add(modEntry.Key, tempDoubleVal);
+                    //Log("{0}: {1}", modEntry.Key, affectEntry.modifiers[modEntry.Key]);
                 }
 
-                affectRules.Add(nodeEntry.Key, affectEntry);
-
+                AffectRules.Add(nodeEntry.Key, affectEntry);
             }
-
-            return;
         }
 
-        // discards the stored affect_rules and replaces it with a new rule file
+        /// <summary>
+        ///     Discards the stored affect_rules and replaces it with a new rule file
+        /// </summary>
+        /// <param name="affectRuleFile"></param>
         public void LoadOpenRuleFile(string affectRuleFile)
         {
+#if NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+            affectRules = JsonSerializer.Deserialize<Dictionary<string, AffectEntry>>(affectRuleFile);
+#else
+            Log("Falling Back to SimpleJSON");
+            JsonClass affectRulesTemp = Json.Parse(affectRuleFile).AsObject;
 
-            #if NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-                affectRules = JsonSerializer.Deserialize<Dictionary<string, AffectEntry>>(affectRuleFile);
-            #else
-                Console.WriteLine("Falling Back to SimpleJSON");
-                JSONClass affectRulesTemp = JSON.Parse(affectRuleFile).AsObject;
+            AffectRules = new Dictionary<string, AffectEntry>();
 
-                affectRules = new Dictionary<string, AffectEntry>();
-
-                ConvertRules(affectRulesTemp);
-            #endif
+            ConvertRules(affectRulesTemp);
+#endif
 
             // update the affect list with the new rule file domain
-            affectList.Clear();
+            _affectNameList.Clear();
 
-            foreach (KeyValuePair<string, AffectEntry> entry in affectRules)
+            foreach (KeyValuePair<string, AffectEntry> entry in AffectRules)
             {
-                affectList.Add(entry.Key);
+                _affectNameList.Add(entry.Key);
             }
-
-            return;
         }
 
-        // helper function to do arithmetic with affect values and clamp the results between the floor and ceiling values as specified in an Affecter
-        private double UpdateAndClampValues(double affectValue, double affectUpdateValue, double floorValue, double ceilValue)
+        private void Log(string message)
         {
-            // using max and min for Math library version compatibility
-            return Math.Max(Math.Min(affectValue + affectUpdateValue, ceilValue), floorValue);
+            if (_log)
+            {
+                Log(message);
+            }
         }
 
-        /*
-         * to make sure affectVectors are in the correct format, use the MakeAffectVector function
-         * the floats correspond to the strength of the expressed affect
-         * current_action corresponds to the standard action expressed by an ActionKeyMap instance in its actual_action_states
-         * NOTE: clamps affect values between floorValue and ceilValue
-         * NOTE: while performing the equilibriumAction the affect values will move toward the equilibriumValue of the Affecter
-         */
-        public void UpdateAffect(Dictionary<string, double> affectVector, string currentAction, string currentModifier, double valueMultiplier = 1.0, double valueAdd = 0.0)
+        /// <summary>
+        ///     Apply an action w/ modifier to an affect vector, using this Affector's rules.
+        ///     To make sure affectVectors are in the correct format, use <see cref="MakeAffectVector" />.
+        ///     NOTE: Performing equilibriumAction will move affect values towards the equilibriumValue of the Affecter.
+        ///     NOTE: Clamps affect values between floorValue and ceilValue.
+        /// </summary>
+        /// <param name="affectVector">The affect vector to update. Float is the strength of the expressed effect</param>
+        /// <param name="currentAction">Standard action expressed by an ActionKeyMap instance in its actual_action_states</param>
+        /// <param name="currentModifier"></param>
+        /// <param name="valueMultiplier">Static multiplier to the affect change</param>
+        /// <param name="valueAdd">Static offset to the affect change (applies after valueMultiplier)</param>
+        public void UpdateAffect(
+            AffectVector affectVector,
+            string currentAction,
+            string currentModifier,
+            double valueMultiplier = 1.0, double valueAdd = 0.0)
         {
             // using a raw for loop here because the values within the affectVector can be changed
             //for (int i = 0; i < affectVector.Count; i++)
-            foreach(string affectName in affectList)
+            foreach (string affectName in _affectNameList)
             {
-
-                double currentActionUpdateValue = affectRules[affectName].actions[currentAction];
-                double currentModifierUpdateValue = affectRules[affectName].modifiers[currentModifier];
-                double currentEquilibriumValue = affectRules[affectName].equilibrium_point;
+                double currentActionUpdateValue = AffectRules[affectName].Actions[currentAction];
+                double currentModifierUpdateValue = AffectRules[affectName].Modifiers[currentModifier];
+                double currentEquilibriumValue = AffectRules[affectName].EquilibriumPoint;
                 double currentAffectValue = affectVector[affectName];
 
-                double valueToAdd = valueMultiplier * (currentModifierUpdateValue * currentActionUpdateValue) + valueAdd;
+                double valueToAdd = valueMultiplier * (currentModifierUpdateValue * currentActionUpdateValue) +
+                                    valueAdd;
 
                 // while performing the resting action, move values towards the given equilibrium point
-                if (currentAction.Equals(equilibriumClassAction))
+                if (currentAction.Equals(_equilibriumClassAction))
                 {
-                    if (currentAffectValue > currentEquilibriumValue)
-                    {
-                        affectVector[affectName] = UpdateAndClampValues(currentAffectValue, -1 * Math.Abs(valueToAdd), currentEquilibriumValue, ceilValue);
-                    }
-                    else if (currentAffectValue < currentEquilibriumValue)
-                    {
-                        affectVector[affectName] = UpdateAndClampValues(currentAffectValue, Math.Abs(valueToAdd), floorValue, currentEquilibriumValue);
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    int equilibriumDirection = currentAffectValue < currentEquilibriumValue ? 1 : -1;
+                    double floor = currentAffectValue < currentEquilibriumValue ? _floorValue : currentEquilibriumValue;
+                    double ceil = currentAffectValue < currentEquilibriumValue ? currentEquilibriumValue : _ceilValue;
+
+                    affectVector.UpdateAndClampValues(affectName, equilibriumDirection * Math.Abs(valueToAdd), floor,
+                        ceil);
                 }
                 else
                 {
-                    affectVector[affectName] = UpdateAndClampValues(currentAffectValue, valueToAdd, floorValue, ceilValue);
+                    affectVector.UpdateAndClampValues(affectName, valueToAdd, _floorValue, _ceilValue);
                 }
             }
-            return;
         }
 
-        /*
-         * returns a list of the affects with the highest strength of expression in the given affectVector
-         */
-        public static List<string> GetPossibleAffects(Dictionary<string, double> affectVector)
+        /// <summary>
+        ///     Chooses the next Current Affect.
+        /// </summary>
+        /// <param name="possibleAffects">
+        ///     A list of strings of affects defined in the .json file loaded into the Affecter
+        ///     instance. Can be generated using the GetPossibleAffects() function
+        /// </param>
+        /// <param name="randomFloor"></param>
+        /// <param name="randomCeil"></param>
+        /// <returns></returns>
+        public string ChoosePrevailingAffect(List<string> possibleAffects, int randomFloor = 0, int randomCeil = 101)
         {
-            List<string> possibleAffects = new List<string>();
+            _connectedAffects.Clear();
 
-            foreach (KeyValuePair<string, double> affectEntry in affectVector)
-            {
-                if (affectEntry.Value == affectVector.Values.Max())
-                {
-                    possibleAffects.Add(affectEntry.Key);
-                }
-            }
-
-            return possibleAffects;
-        }
-
-        /*
-         * chooses the next current affect
-         * possibleAffects must be a list of strings of affects defined in the .json file loaded into the Affecter instance
-         * possibleAffects can be generated using the GetPossibleAffects() function
-         * the choice logic is as follows:
-         *      pick the only available affect
-         *      if there is more than one and the currentAffect is in the set of possible affects pick it
-         *      if the currentAffect is not in the set but there is at least one affect connected to the current affect, pick from that subset, with weights if any are specified
-         *      otherwise randomly pick from the disconnected set of possible affects
-         */
-        public static string ChoosePrevailingAffect(Affecter affecter, List<string> possibleAffects, int randomFloor = 0, int randomCeil = 101)
-        {
-            affecter.connectedAffects.Clear();
+            // The choice logic is as follows
+            // 1. Pick the only available affect
             if (possibleAffects.Count == 1)
             {
-                affecter.currentAffect = possibleAffects[0];
-                return affecter.currentAffect;
+                CurrentAffect = possibleAffects[0];
+                return CurrentAffect;
             }
-            if (possibleAffects.Contains(affecter.currentAffect))
+
+            // 2. if there is more than one and the currentAffect is in the set of possible affects pick it
+            if (possibleAffects.Contains(CurrentAffect))
             {
-                return affecter.currentAffect;
+                return CurrentAffect;
             }
 
-            Dictionary<string, int> currAdjacencyWeights = affecter.affectRules[affecter.currentAffect].adjacent_affects;
+            // 3. if the currentAffect is not in the set but there is at least one affect connected to the current affect
+            // pick from that subset, with weights if any are specified
+            Dictionary<string, int> currAdjacencyWeights = AffectRules[CurrentAffect].AdjacentAffects;
 
-            foreach(string affect in possibleAffects)
+            foreach (string affect in possibleAffects)
             {
                 if (currAdjacencyWeights.ContainsKey(affect))
                 {
-                    affecter.connectedAffects.Add(affect);
+                    _connectedAffects.Add(affect);
                 }
             }
 
-            
-            if (affecter.connectedAffects.Count > 0)
+            if (_connectedAffects.Count > 0)
             {
-                int randomNum = affecter.randomInstance.Next(randomFloor, randomCeil);
+                int randomNum = _randomInstance.Next(randomFloor, randomCeil);
                 // weighted random choice of the connected affects to the current affect
                 // a weight of 0 is ignored
-                foreach (string affect in affecter.connectedAffects)
+                foreach (string affect in _connectedAffects)
                 {
                     int currAffectWeight = currAdjacencyWeights[affect];
                     if (currAffectWeight > 0 && randomNum <= currAffectWeight)
                     {
-                        affecter.currentAffect = affect;
-                        return affecter.currentAffect;
+                        CurrentAffect = affect;
+                        return CurrentAffect;
                     }
+
                     randomNum -= currAffectWeight;
                 }
 
                 // if all weights are 0, just pick randombly
-                randomNum = affecter.randomInstance.Next(affecter.connectedAffects.Count);
+                randomNum = _randomInstance.Next(_connectedAffects.Count);
 
-                affecter.currentAffect = affecter.connectedAffects[randomNum];
-                return affecter.currentAffect;
-            }
-            else
-            {
-                int randomIndex = affecter.randomInstance.Next(possibleAffects.Count);
-                affecter.currentAffect = possibleAffects[randomIndex];
-                return affecter.currentAffect;
+                CurrentAffect = _connectedAffects[randomNum];
+                return CurrentAffect;
             }
 
+            int randomIndex = _randomInstance.Next(possibleAffects.Count);
+            CurrentAffect = possibleAffects[randomIndex];
+            return CurrentAffect;
         }
 
-        /*
-         * wrapper function around the GetPossibleAffects() to ChoosePrevailingAffect() pipeline to allow for easier, more fixed integration into other code
-         * NOTE: this function is not intended to supercede the useage of both GetPossibleAffects() and ChoosePrevailingAffect()
-         *  it is here for convenience and if the default behavior of immediately using the list created by GetPossibleAffects() in ChoosePrevailingAffect()
-         *  is the desired functionality
-         */
-        public static string GetPrevailingAffect(Affecter affecter, Dictionary<string, double> affectVector)
+        /// <summary>
+        ///     Utility Wrapper function around the GetPossibleAffects() to ChoosePrevailingAffect() pipeline
+        /// </summary>
+        /// <returns>Prevailing effect in the AffectVector</returns>
+        public string GetPrevailingAffect(AffectVector affectVector)
         {
-            List<string> possibleAffects = GetPossibleAffects(affectVector);
-            string prevailingAffect = ChoosePrevailingAffect(affecter, possibleAffects);
+            List<string> possibleAffects = affectVector.GetAllPrevailingAffects();
+            string prevailingAffect = ChoosePrevailingAffect(possibleAffects);
             return prevailingAffect;
         }
 
-        // evaluates a given affectVector based on the difference in values between the goalEmotion and the highest valued affects
-        public static double EvaluateAffectVector(string currentAffect, Dictionary<string, double> affectVector, string goalEmotion)
+        /// <summary>
+        ///     Creates a matching affect vector dictionary based on provided affect rules.
+        ///     NOTE: it is recommended you make an Affecter instance THEN make the corresponding AffectVector to make sure the
+        ///     keys match
+        /// </summary>
+        public AffectVector MakeAffectVector()
         {
-            double score = 0;
-            double goalEmotionValue = affectVector[goalEmotion];
+            List<string> affectNames = AffectRules.Keys.ToList();
+            var affectVector = new AffectVector();
 
-            List<string> maxAffects = GetPossibleAffects(affectVector);
-
-            if (currentAffect.CompareTo(goalEmotion) == 0)
+            foreach (string affect in affectNames)
             {
-                score += 1;
-            }
-            else if (maxAffects.Count > 1 && maxAffects.Contains(goalEmotion) && currentAffect.CompareTo(goalEmotion) != 0)
-            {
-                score -= 1;
-            }
-            else
-            {
-                foreach (KeyValuePair<string, double> affectEntry in affectVector)
-                {
-                    if (affectEntry.Key.CompareTo(goalEmotion) != 0)
-                    {
-                        score += goalEmotionValue - affectVector[affectEntry.Key];
-                    }
-                }
-            }
-
-            return score;
-        }
-
-        // provided function for formatting dictionaries for use with an Affecter
-        // NOTE: it is recommended you make an Affecter instance THEN make the corresponding AffectVector to make sure the keys match
-        public static Dictionary<string, double> MakeAffectVector(Dictionary<string, AffectEntry> referenceAffecter)
-        {
-            List<string> affectNames = referenceAffecter.Keys.ToList();
-            Dictionary<string, double> affectVector = new Dictionary<string, double>();
-
-            foreach(string affect in affectNames)
-            {
-                affectVector.Add(affect, referenceAffecter[affect].equilibrium_point);
+                affectVector.Add(affect, AffectRules[affect].EquilibriumPoint);
             }
 
             return affectVector;
         }
 
-    }
+        /// <returns>List including the names of all actions included in the affect rules</returns>
+        public List<string> GetAllActionNames()
+        {
+            return AffectRules.Values.SelectMany(affectEntry => affectEntry.Actions.Keys).Distinct().ToList();
+        }
 
+        public List<string> GetAllModifierNames()
+        {
+            return AffectRules.Values.SelectMany(affectEntry => affectEntry.Modifiers.Keys).Distinct().ToList();
+        }
+    }
 }

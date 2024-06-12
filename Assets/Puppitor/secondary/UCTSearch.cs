@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using System;
-using UnityEngine;
+using System.Collections.Generic;
 using System.Linq;
 using Puppitor;
+using UnityEngine;
 using Random = System.Random;
 
 namespace UCTSearch
@@ -12,12 +11,12 @@ namespace UCTSearch
     // does not track turns
     public class Node
     {
+        public List<Node> childNodes;
         public Tuple<string, string> nodeMove;
         public Node parentNode;
-        public List<Node> childNodes;
         public double reward;
-        public int visits;
         public List<Tuple<string, string>> untriedMoves;
+        public int visits;
 
         public Node(Tuple<string, string> move = null, Node parent = null, ActionKeyMap<KeyCode> actionKeyMap = null)
         {
@@ -28,17 +27,18 @@ namespace UCTSearch
             visits = 0;
             untriedMoves = actionKeyMap.GetMoves();
         }
-    
+
         // use the UCB1 formula to select a child node
         public Node UCTSelectChild()
         {
-            return childNodes.OrderByDescending(c => c.reward/c.visits + Math.Sqrt(2 * Math.Log(visits) / c.visits)).ToList()[0];
+            return childNodes.OrderByDescending(c => c.reward / c.visits + Math.Sqrt(2 * Math.Log(visits) / c.visits))
+                .ToList()[0];
         }
 
         // remove nodeMove from untriedMoves and add a new child node for the move and return it
         public Node AddChild(Tuple<string, string> triedMove, ActionKeyMap<KeyCode> actionKeyMap)
         {
-            Node node = new Node(triedMove, this, actionKeyMap);
+            var node = new Node(triedMove, this, actionKeyMap);
             untriedMoves.Remove(triedMove);
             childNodes.Add(node);
             return node;
@@ -49,30 +49,30 @@ namespace UCTSearch
         {
             visits++;
             reward += result;
-            return;
         }
     }
 
     public static class UCTThink
     {
-
-        private static Random randomInstance = new Random();
+        private static readonly Random randomInstance = new();
 
         // conduct a UCT search for itermax iterations from the given root state
         // returns the best move from the root state
-        public static Tuple<string, string> UCT_Think(Dictionary<string, double> rootAffectVector, ActionKeyMap<KeyCode> actionKeyMap, Affecter characterAffecter, string goalEmotion, int itermax, int rolloutMax = 50)
+        public static Tuple<string, string> UCT_Think(AffectVector rootAffectVector,
+            ActionKeyMap<KeyCode> actionKeyMap, Affecter characterAffecter, string goalEmotion, int itermax,
+            int rolloutMax = 50)
         {
-            Node rootNode = new Node(null, null, actionKeyMap);
+            var rootNode = new Node(null, null, actionKeyMap);
 
-            for(int i = 0; i < itermax; i++)
+            for (var i = 0; i < itermax; i++)
             {
                 Node currNode = rootNode;
-                Dictionary<string, double> affectVector = new Dictionary<string, double>(rootAffectVector);
-                string action = "";
-                string modifier = "";
+                var affectVector = new AffectVector(rootAffectVector);
+                var action = "";
+                var modifier = "";
 
                 // selection
-                while(currNode.untriedMoves.Count < 1 && currNode.childNodes.Count > 0)
+                while (currNode.untriedMoves.Count < 1 && currNode.childNodes.Count > 0)
                 {
                     currNode = currNode.UCTSelectChild();
                     Tuple<string, string> temp = UpdateAffectState(currNode.nodeMove, affectVector, characterAffecter);
@@ -81,46 +81,51 @@ namespace UCTSearch
                 }
 
                 // expansion
-                if(currNode.untriedMoves.Count > 0)
+                if (currNode.untriedMoves.Count > 0)
                 {
-                    Tuple<string, string> move = currNode.untriedMoves[randomInstance.Next(0, currNode.untriedMoves.Count)];
+                    Tuple<string, string> move =
+                        currNode.untriedMoves[randomInstance.Next(0, currNode.untriedMoves.Count)];
                     Tuple<string, string> temp = UpdateAffectState(move, affectVector, characterAffecter);
                     action = temp.Item1;
                     modifier = temp.Item2;
 
-                    currNode = currNode.AddChild(move, actionKeyMap); 
+                    currNode = currNode.AddChild(move, actionKeyMap);
                 }
 
                 // rollout until we find an affectVector where the goalEmotion has a higher relative value to the other affects or we have done N simulations
-                int rolloutLength = 0;
-                while(Affecter.EvaluateAffectVector(characterAffecter.currentAffect, affectVector, goalEmotion) < 0 && rolloutLength < rolloutMax)
+                var rolloutLength = 0;
+                while (affectVector.EvaluateAffectVector(characterAffecter.CurrentAffect, goalEmotion) < 0 &&
+                       rolloutLength < rolloutMax)
                 {
-                    Tuple<string, string> temp = UpdateAffectState(actionKeyMap.moves[randomInstance.Next(0, actionKeyMap.moves.Count)], affectVector, characterAffecter);
+                    Tuple<string, string> temp = UpdateAffectState(
+                        actionKeyMap.Moves[randomInstance.Next(0, actionKeyMap.Moves.Count)], affectVector,
+                        characterAffecter);
                     action = temp.Item1;
                     modifier = temp.Item2;
                     rolloutLength++;
                 }
 
                 // backpropogate
-                while(currNode != null)
+                while (currNode != null)
                 {
-                    currNode.Update(Affecter.EvaluateAffectVector(characterAffecter.currentAffect, affectVector, goalEmotion));
+                    currNode.Update(affectVector.EvaluateAffectVector(characterAffecter.CurrentAffect,
+                        goalEmotion));
                     currNode = currNode.parentNode;
                 }
             }
 
-            return rootNode.childNodes.OrderByDescending(c => c.reward/c.visits).ToList()[0].nodeMove;
+            return rootNode.childNodes.OrderByDescending(c => c.reward / c.visits).ToList()[0].nodeMove;
         }
 
-        private static Tuple<string, string> UpdateAffectState(Tuple<string, string> move, Dictionary<string, double> affectVector, Affecter characterAffecter)
+        private static Tuple<string, string> UpdateAffectState(Tuple<string, string> move,
+            AffectVector affectVector, Affecter characterAffecter)
         {
             string action = move.Item1;
             string modifier = move.Item2;
             characterAffecter.UpdateAffect(affectVector, action, modifier);
-            Affecter.GetPrevailingAffect(characterAffecter, affectVector);
+            characterAffecter.GetPrevailingAffect(affectVector);
 
-            return new Tuple<string, string> (action, modifier);
+            return new Tuple<string, string>(action, modifier);
         }
     }
-    
 }

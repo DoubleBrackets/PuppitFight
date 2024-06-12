@@ -4,55 +4,63 @@ using System.Linq;
 
 namespace Puppitor
 {
-    /*
-     * action_key_map contains the interface for storing keybindings and performing actions
-     * the dictionary is modeled on Ren'Py's keymap
-     * the class also wraps the flags for detecting if an action is being done
-     *
-     * the possible_action_states dict is used to keep track of all interpreted actions being done and is updated based on keys and buttons pressed
-     *
-     * the actual_action_states is broken into modifier states and actions
-     * only one action can be happening at a time
-     * only one modifier can be active at a time
-     * modifiers update independently from actions
-     * actions update independently from modifiers
-     *
-     */
-    public class ActionKeyMap<InputT>
+    /// <summary>
+    ///     <para />
+    ///     Action_key_map contains the interface for storing keybindings and performing actions.
+    ///     <para />
+    ///     The dictionary is modeled on Ren'Py's keymap.
+    ///     <para />
+    ///     The class also wraps the flags for detecting if an action is being done.
+    ///     <para />
+    ///     The possible_action_states dict is used to keep track of all interpreted actions being done and is updated based on
+    ///     keys and buttons pressed.
+    ///     <para />
+    ///     The actual_action_states is broken into modifier states and actions.
+    ///     <para />
+    ///     Only one action can be happening at a time.
+    ///     <para />
+    ///     Only one modifier can be active at a time.
+    ///     <para />
+    ///     Modifiers update independently from actions.
+    ///     <para />
+    ///     Actions update independently from modifiers.
+    /// </summary>
+    /// <typeparam name="TInputT"></typeparam>
+    public class ActionKeyMap<TInputT>
     {
+        public readonly Dictionary<string, Dictionary<string, bool>> ActualActionStates;
+        public readonly List<Tuple<string, string>> Moves;
 
-        public Dictionary<string, Dictionary<string, List<InputT>>> keyMap;
+        private readonly Dictionary<string, string> _currentStates;
 
-        public Dictionary<string, string> defaultStates;
-        public Dictionary<string, string> currentStates;
+        private readonly Dictionary<string, string> _defaultStates;
+        private readonly Dictionary<string, Dictionary<string, List<TInputT>>> _keyMap;
 
-        public Dictionary<string, bool> possibleActionStates;
-        public Dictionary<string, Dictionary<string, bool>> actualActionStates;
+        private readonly Dictionary<string, bool> _possibleActionStates;
 
-        private Dictionary<string, List<string>> updatableStates;
+        private readonly Dictionary<string, List<string>> _updatableStates;
 
-        public List<Tuple<string, string>> moves;
-
-        public ActionKeyMap(Dictionary<string, Dictionary<string, List<InputT>>> keyMap, string defaultAction = "resting", string defaultModifier = "neutral")
+        public ActionKeyMap(Dictionary<string, Dictionary<string, List<TInputT>>> keyMap,
+            string defaultAction = "resting", string defaultModifier = "neutral")
         {
             // this dictionary and values should not be modified ever and are generally for internal use only
-            defaultStates = new Dictionary<string, string>();
-            defaultStates.Add("actions", defaultAction);
-            defaultStates.Add("modifiers", defaultModifier);
+            _defaultStates = new Dictionary<string, string>();
+            _defaultStates.Add("actions", defaultAction);
+            _defaultStates.Add("modifiers", defaultModifier);
 
             // this dictionary and values should only be modified internally and are used to access the current state of the actions being performed 
-            currentStates = new Dictionary<string, string>();
-            currentStates.Add("actions", defaultStates["actions"]);
-            currentStates.Add("modifiers", defaultStates["modifiers"]);
+            _currentStates = new Dictionary<string, string>();
+            _currentStates.Add("actions", _defaultStates["actions"]);
+            _currentStates.Add("modifiers", _defaultStates["modifiers"]);
 
-            moves = new List<Tuple<string, string>>();
+            Moves = new List<Tuple<string, string>>();
 
             // expected format of keyMap
             /*
             {
                 "actions": {
-                            "open_flow": [InputT n], 
-                            'closed_flow': [InputT m], 
+                            "open_flow": [InputT n],
+                            'closed_flow': [InputT m],
                             'projected_energy': [InputT b]
                 },
                 "modifiers": {
@@ -62,7 +70,7 @@ namespace Puppitor
             }
             */
 
-            this.keyMap = keyMap;
+            _keyMap = keyMap;
 
             // flags corresponding to actions being specified by the user input
             // FOR INPUT DETECTION USE ONLY
@@ -77,16 +85,16 @@ namespace Puppitor
                             "tempo_down" : false
             */
 
-            possibleActionStates = new Dictionary<string, bool>();
+            _possibleActionStates = new Dictionary<string, bool>();
 
             foreach (string action in keyMap["actions"].Keys)
             {
-                possibleActionStates.Add(action, false);
+                _possibleActionStates.Add(action, false);
             }
 
             foreach (string modifier in keyMap["modifiers"].Keys)
             {
-                possibleActionStates.Add(modifier, false);
+                _possibleActionStates.Add(modifier, false);
             }
 
             // flags used for specifying the current state of actions for use in updating a character's physical affect
@@ -98,36 +106,36 @@ namespace Puppitor
                             "modifiers" : {"tempo_up" : false, "tempo_down" : false, "neutral" : true}
             */
 
-            Dictionary<string, bool> tempActualActionDict = new Dictionary<string, bool>();
+            var tempActualActionDict = new Dictionary<string, bool>();
             tempActualActionDict[defaultAction] = true;
             foreach (string action in keyMap["actions"].Keys)
             {
                 tempActualActionDict[action] = false;
             }
 
-            Dictionary<string, bool> tempActualModifierDict = new Dictionary<string, bool>();
+            var tempActualModifierDict = new Dictionary<string, bool>();
             tempActualModifierDict[defaultModifier] = true;
             foreach (string modifier in keyMap["modifiers"].Keys)
             {
                 tempActualModifierDict[modifier] = false;
             }
 
-            actualActionStates = new Dictionary<string, Dictionary<string, bool>>();
-            actualActionStates.Add("actions", tempActualActionDict);
-            actualActionStates.Add("modifiers", tempActualModifierDict);
+            ActualActionStates = new Dictionary<string, Dictionary<string, bool>>();
+            ActualActionStates.Add("actions", tempActualActionDict);
+            ActualActionStates.Add("modifiers", tempActualModifierDict);
 
             tempActualActionDict = null;
             tempActualModifierDict = null;
 
-            updatableStates = new Dictionary<string, List<string>>();
-            updatableStates.Add("actions", actualActionStates["actions"].Keys.ToList());
-            updatableStates.Add("modifiers", actualActionStates["modifiers"].Keys.ToList());
+            _updatableStates = new Dictionary<string, List<string>>();
+            _updatableStates.Add("actions", ActualActionStates["actions"].Keys.ToList());
+            _updatableStates.Add("modifiers", ActualActionStates["modifiers"].Keys.ToList());
 
-            foreach(string action in actualActionStates["actions"].Keys)
+            foreach (string action in ActualActionStates["actions"].Keys)
             {
-                foreach(string modifier in actualActionStates["modifiers"].Keys)
+                foreach (string modifier in ActualActionStates["modifiers"].Keys)
                 {
-                    moves.Add(new Tuple<string, string>(action, modifier));
+                    Moves.Add(new Tuple<string, string>(action, modifier));
                 }
             }
 
@@ -137,13 +145,10 @@ namespace Puppitor
         // USED FOR UPDATING BASED ON KEYBOARD INPUTS    
         public void UpdatePossibleStates(string stateToUpdate, bool newValue)
         {
-
-            if (possibleActionStates.ContainsKey(stateToUpdate))
+            if (_possibleActionStates.ContainsKey(stateToUpdate))
             {
-                possibleActionStates[stateToUpdate] = newValue;
+                _possibleActionStates[stateToUpdate] = newValue;
             }
-
-            return;
         }
 
         /* USED FOR UPDATING THE INTERPRETABLE STATE BASED ON WHICH ACTION IS DISPLAYED
@@ -155,8 +160,7 @@ namespace Puppitor
          */
         public void UpdateActualStates(string stateToUpdate, string classOfAction, bool newValue)
         {
-
-            List<string> states = updatableStates[classOfAction];
+            List<string> states = _updatableStates[classOfAction];
 
             if (states.Contains(stateToUpdate))
             {
@@ -166,35 +170,32 @@ namespace Puppitor
                 // specified action/modifier
                 foreach (string state in states)
                 {
-
                     if (stateToUpdate.Equals(state))
                     {
-                        actualActionStates[classOfAction][state] = newValue;
-                        currentStates[classOfAction] = state;
+                        ActualActionStates[classOfAction][state] = newValue;
+                        _currentStates[classOfAction] = state;
                     }
                     else
                     {
-                        actualActionStates[classOfAction][state] = false;
+                        ActualActionStates[classOfAction][state] = false;
                     }
                 }
 
                 if (newValue == false)
                 {
                     // return to doing the default behavior
-                    currentStates[classOfAction] = defaultStates[classOfAction];
-                    actualActionStates[classOfAction][defaultStates[classOfAction]] = true;
+                    _currentStates[classOfAction] = _defaultStates[classOfAction];
+                    ActualActionStates[classOfAction][_defaultStates[classOfAction]] = true;
                 }
             }
-
-            return;
         }
 
         // makes a copy of moves to allow search algorithms like MCTS to easily store lists of available moves
         public List<Tuple<string, string>> GetMoves()
         {
-            List<Tuple<string, string>> moveList = new List<Tuple<string, string>>();
+            var moveList = new List<Tuple<string, string>>();
 
-            foreach(Tuple<string, string> move in moves)
+            foreach (Tuple<string, string> move in Moves)
             {
                 moveList.Add(new Tuple<string, string>(move.Item1, move.Item2));
             }
@@ -207,57 +208,58 @@ namespace Puppitor
         // classOfAction must be either "actions" or "modifiers"
         public void ChangeDefault(string newDefault, string classOfAction)
         {
-            if (!defaultStates.ContainsKey(classOfAction))
+            if (!_defaultStates.ContainsKey(classOfAction))
             {
                 Console.WriteLine(classOfAction + " is not an \"action\" or \"modifier\"");
                 return;
             }
 
-            if (!keyMap[classOfAction].ContainsKey(newDefault))
+            if (!_keyMap[classOfAction].ContainsKey(newDefault))
             {
                 Console.WriteLine(newDefault + " is not in " + classOfAction);
                 return;
             }
 
-            string oldDefault = defaultStates[classOfAction];
-            List<InputT> oldNonDefaultKeys = keyMap[classOfAction][newDefault];
+            string oldDefault = _defaultStates[classOfAction];
+            List<TInputT> oldNonDefaultKeys = _keyMap[classOfAction][newDefault];
 
             Console.WriteLine("original default: " + oldDefault + ", newDefault original keys: ");
 
-            foreach(InputT key in oldNonDefaultKeys)
+            foreach (TInputT key in oldNonDefaultKeys)
             {
                 Console.WriteLine(key);
             }
 
-            defaultStates[classOfAction] = newDefault;
-            keyMap[classOfAction].Remove(newDefault);
-            possibleActionStates.Remove(newDefault);
-            keyMap[classOfAction][oldDefault] = oldNonDefaultKeys;
-            possibleActionStates[oldDefault] = false;
+            _defaultStates[classOfAction] = newDefault;
+            _keyMap[classOfAction].Remove(newDefault);
+            _possibleActionStates.Remove(newDefault);
+            _keyMap[classOfAction][oldDefault] = oldNonDefaultKeys;
+            _possibleActionStates[oldDefault] = false;
 
             Console.WriteLine("keyMap: " + this);
         }
 
         public override string ToString()
         {
+            var result = "\n";
 
-            string result = "\n";
+            result += "defaultAction = " + _defaultStates["actions"] + "\ndefaultModifier = " +
+                      _defaultStates["modifiers"] + "\n\n";
 
-            result += "defaultAction = " + defaultStates["actions"] + "\ndefaultModifier = " + defaultStates["modifiers"] + "\n\n";
-
-            result += "currentAction = " + currentStates["actions"] + "\ncurrentModifier = " + currentStates["modifiers"] + "\n";
+            result += "currentAction = " + _currentStates["actions"] + "\ncurrentModifier = " +
+                      _currentStates["modifiers"] + "\n";
 
             result += "\nKeyMap:\n";
 
-            foreach (KeyValuePair<string, Dictionary<string, List<InputT>>> kvp in keyMap)
+            foreach (KeyValuePair<string, Dictionary<string, List<TInputT>>> kvp in _keyMap)
             {
                 result += "\t" + kvp.Key + "\n";
 
-                foreach (KeyValuePair<string, List<InputT>> kvpInner in kvp.Value)
+                foreach (KeyValuePair<string, List<TInputT>> kvpInner in kvp.Value)
                 {
                     result += "\t\t" + kvpInner.Key + " = ";
 
-                    foreach (InputT key in kvpInner.Value)
+                    foreach (TInputT key in kvpInner.Value)
                     {
                         result += key + "\n";
                     }
@@ -266,27 +268,26 @@ namespace Puppitor
 
             result += "\nPossibleActionStates:\n";
 
-            foreach (KeyValuePair<string, bool> kvp in possibleActionStates)
+            foreach (KeyValuePair<string, bool> kvp in _possibleActionStates)
             {
                 result += "\t" + kvp.Key + " = " + kvp.Value + "\n";
             }
 
             result += "\nActualActionStates:\n";
 
-            foreach (KeyValuePair<string, Dictionary<string, bool>> kvp in actualActionStates)
+            foreach (KeyValuePair<string, Dictionary<string, bool>> kvp in ActualActionStates)
             {
                 result += "\t" + kvp.Key + "\n";
 
                 foreach (KeyValuePair<string, bool> kvpInner in kvp.Value)
                 {
                     result += "\t\t" + kvpInner.Key + " = " + kvpInner.Value + "\n";
-
                 }
             }
 
             result += "\nMoves:";
 
-            foreach(Tuple<string, string> move in moves)
+            foreach (Tuple<string, string> move in Moves)
             {
                 result += "(" + move.Item1 + ", " + move.Item2 + ") ";
             }
@@ -294,8 +295,6 @@ namespace Puppitor
             result += "\n";
 
             return result;
-
         }
-
     }
 }
