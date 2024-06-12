@@ -1,0 +1,17 @@
+{
+    "name": "PuppitCore",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c57020796fe29a046b1fe487d4c45ca8",
+        "GUID:314410211f0bc444492cc24bfb66a98c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
