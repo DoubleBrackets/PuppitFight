@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using Puppitor;
 using UnityEngine;
 
+/// <summary>
+///     Extension methods for drawing debug information relating to Puppits
+/// </summary>
 public static class DebugExtensionMethods
 {
     public static void LogAffectVector(this AffectVector affectVector)

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
+public class BossMovement : MonoBehaviour, IModifierProvider, IActionProvider
 {
     private enum Modifiers
     {
@@ -19,37 +19,37 @@ public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
     }
 
     [SerializeField]
-    private float _speed;
+    private Transform _target;
 
     [SerializeField]
-    private float _accel;
+    private float _tetherDistance;
+
+    [SerializeField]
+    private float _acceleration;
+
+    [SerializeField]
+    private float _speed;
 
     [SerializeField]
     private Rigidbody2D _rb;
 
-    [SerializeField]
-    private Transform _target;
-
     private Modifiers _currentModifier = Modifiers.Neutral;
-
     private Actions _currentAction = Actions.Resting;
 
     private void Update()
     {
-        var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Vector2 vectorToTarget = _target.position - transform.position;
 
-        Vector3 vectorToTarget = _target.position - transform.position;
-
-        CalculateModifier(input, vectorToTarget);
-        CalculateAction(input);
-
-        // Hard coded pair
-        if (_currentAction == Actions.Nothing)
+        Vector2 targetVelocity = vectorToTarget.normalized * _speed;
+        if (vectorToTarget.magnitude < _tetherDistance)
         {
-            _currentModifier = Modifiers.Neutral;
+            targetVelocity *= -1;
         }
 
-        _rb.velocity = Vector2.MoveTowards(_rb.velocity, input.normalized * _speed, _accel * Time.deltaTime);
+        _rb.velocity = Vector2.MoveTowards(_rb.velocity, targetVelocity, _acceleration * Time.deltaTime);
+
+        CalculateModifier(_rb.velocity, vectorToTarget);
+        CalculateAction(_rb.velocity);
     }
 
     public string GetCurrentAction()

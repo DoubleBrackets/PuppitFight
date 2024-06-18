@@ -31,7 +31,7 @@ public class GreedyAffectSearch
             copiedAffectVector[i] = new AffectVector();
             foreach (string affect in affects)
             {
-                copiedAffectVector[i].Add(affect, 0.0);
+                copiedAffectVector[i].TryAdd(affect, 0.0);
                 affectNames.Add(affect);
             }
         }

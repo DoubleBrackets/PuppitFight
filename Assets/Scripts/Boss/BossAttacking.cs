@@ -1,12 +1,18 @@
 using UnityEngine;
 
-public class ProtagShoot : MonoBehaviour
+public class BossAttacking : MonoBehaviour
 {
+    [SerializeField]
+    private Transform _target;
+
     [SerializeField]
     private Projectile _bulletPrefab;
 
     [SerializeField]
     private float _cooldown;
+
+    [SerializeField]
+    private float _spread;
 
     private float _timer;
 
@@ -17,7 +23,7 @@ public class ProtagShoot : MonoBehaviour
             _timer -= Time.deltaTime;
         }
 
-        if (Input.GetMouseButton(0) && _timer <= 0)
+        if (_timer <= 0)
         {
             _timer = _cooldown;
             Shoot();
@@ -27,7 +33,10 @@ public class ProtagShoot : MonoBehaviour
     private void Shoot()
     {
         Projectile bullet = Instantiate(_bulletPrefab, transform.position, Quaternion.identity);
-        bullet.Launch(transform.position,
-            (Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized);
+        Vector2 direction = (_target.position - transform.position).normalized;
+        // add some randomness to the direction
+        direction = Quaternion.Euler(0, 0, Random.Range(-_spread, _spread)) * direction;
+
+        bullet.Launch(transform.position, direction);
     }
 }

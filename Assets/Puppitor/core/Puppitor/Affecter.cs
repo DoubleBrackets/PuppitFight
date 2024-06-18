@@ -357,7 +357,22 @@ namespace Puppitor
 
             foreach (string affect in affectNames)
             {
-                affectVector.Add(affect, AffectRules[affect].EquilibriumPoint);
+                affectVector.TryAdd(affect, AffectRules[affect].EquilibriumPoint);
+            }
+
+            return affectVector;
+        }
+
+        /// <summary>
+        ///     Appends this Affecter's affects to an existing AffectVector.
+        /// </summary>
+        public AffectVector AppendToAffectVector(AffectVector affectVector)
+        {
+            List<string> affectNames = AffectRules.Keys.ToList();
+
+            foreach (string affect in affectNames)
+            {
+                affectVector.TryAdd(affect, AffectRules[affect].EquilibriumPoint);
             }
 
             return affectVector;

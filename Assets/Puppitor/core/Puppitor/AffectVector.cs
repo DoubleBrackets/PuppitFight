@@ -47,9 +47,17 @@ namespace Puppitor
             return GetEnumerator();
         }
 
-        public void Add(string key, double value)
+        public void ResetValues()
         {
-            _affectVector.Add(key, value);
+            foreach (string affect in _affectVector.Keys.ToList())
+            {
+                _affectVector[affect] = 0;
+            }
+        }
+
+        public bool TryAdd(string key, double value)
+        {
+            return _affectVector.TryAdd(key, value);
         }
 
         public void Remove(string key)
@@ -127,6 +135,17 @@ namespace Puppitor
             }
 
             return score;
+        }
+
+        public double DotProduct(AffectVector other)
+        {
+            double dotProduct = 0;
+            foreach (string affect in _affectVector.Keys)
+            {
+                dotProduct += _affectVector[affect] * other[affect];
+            }
+
+            return dotProduct;
         }
     }
 }

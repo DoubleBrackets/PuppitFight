@@ -1,31 +1,24 @@
 using System;
 using System.Collections.Generic;
-using Puppitor;
 using UnityEngine;
 
+/// <summary>
+///     Debug Affecter controller mapping default numkeys to affecter actions and modifiers
+/// </summary>
 public class DebugController : MonoBehaviour, IModifierProvider, IActionProvider
 {
     [SerializeField]
-    private Puppit _puppit;
+    private PuppitLimb _targetPuppitLimb;
 
     private string _modifier;
     private string _action;
 
-    private Affecter _affecter;
     private List<string> _affectNames;
     private List<string> _modifierNames;
 
-    private void Start()
+    private void Awake()
     {
-        _puppit.SetModifierProvider(this);
-        _puppit.SetActionProvider(this);
-        _affecter = _puppit.Affecter;
-
-        _affectNames = _affecter.GetAllActionNames();
-        _modifierNames = _affecter.GetAllModifierNames();
-
-        _modifier = _modifierNames[0];
-        _action = _affectNames[0];
+        _targetPuppitLimb.OnFinishSetup += Setup;
     }
 
     private void Update()
@@ -60,5 +53,14 @@ public class DebugController : MonoBehaviour, IModifierProvider, IActionProvider
     public string GetCurrentModifier()
     {
         return _modifier;
+    }
+
+    private void Setup()
+    {
+        _affectNames = _targetPuppitLimb.GetAllActionNames();
+        _modifierNames = _targetPuppitLimb.GetAllModifierNames();
+
+        _modifier = _modifierNames[0];
+        _action = _affectNames[0];
     }
 }

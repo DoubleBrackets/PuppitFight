@@ -1,0 +1,62 @@
+{
+  "aggressiveness" : {
+    "actions" : {
+      "shoot" : 0.2,
+      "resting" : 0.1
+    },
+    "modifiers" : {
+      "towards" : 1,
+      "away" : -0.25,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "wariness" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "fear" : {
+    "actions" : {
+      "shoot" : 0.2,
+      "resting" : 0.1
+    },
+    "modifiers" : {
+      "towards" : -1.0,
+      "away" : 0.1,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "wariness" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "wariness" : {
+    "actions" : {
+      "shoot" : 0.5,
+      "resting" : 0.1
+    },
+    "modifiers" : {
+      "towards" : -0.6,
+      "away" : -0.4,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "fear" : 100
+    },
+    "equilibrium_point" : 0.5
+  },
+  "confusion" : {
+    "actions" : {
+      "shoot" : 0.5,
+      "resting" : 0.1
+    },
+    "modifiers" : {
+      "towards" : 1.0,
+      "away" : 1.0,
+      "neutral" : 1.0
+    },
+    "adjacent_affects" : {
+      "wariness" : 100
+    },
+    "equilibrium_point" : 0.5
+  }
+}
