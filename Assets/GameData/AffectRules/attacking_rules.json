@@ -1,7 +1,8 @@
 {
   "aggressiveness" : {
+    # Attacking towards the target generally increases aggressiveness
     "actions" : {
-      "shoot" : 0.2,
+      "shoot" : 0.1,
       "resting" : 0.1
     },
     "modifiers" : {
@@ -15,6 +16,7 @@
     "equilibrium_point" : 0.5
   },
   "fear" : {
+    # Shooting away from the target is a performance of fear
     "actions" : {
       "shoot" : 0.2,
       "resting" : 0.1
@@ -30,13 +32,14 @@
     "equilibrium_point" : 0.5
   },
   "wariness" : {
+    # Shooting generally increases wariness, while melee strikes decrease it
     "actions" : {
-      "shoot" : 0.5,
+      "shoot" : 0.15,
       "resting" : 0.1
     },
     "modifiers" : {
-      "towards" : -0.6,
-      "away" : -0.4,
+      "towards" : 1,
+      "away" : 0,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -45,12 +48,13 @@
     "equilibrium_point" : 0.5
   },
   "confusion" : {
+    # Attacking away from the target is a performance of confusion
     "actions" : {
-      "shoot" : 0.5,
+      "shoot" : 0.1,
       "resting" : 0.1
     },
     "modifiers" : {
-      "towards" : 1.0,
+      "towards" : 0,
       "away" : 1.0,
       "neutral" : 1.0
     },

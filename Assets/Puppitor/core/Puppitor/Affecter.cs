@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using SimpleJSON;
 using Random = System.Random;
 #if NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
@@ -92,6 +93,10 @@ namespace Puppitor
             Log(affectRulesJSON);
             affectRules = JsonSerializer.Deserialize<Dictionary<string, AffectEntry>>(affectRulesJSON);
 #else
+
+            // Preprocess comments; remove all lines with '#' as the first non-whitespace character
+            affectRulesJson = Regex.Replace(affectRulesJson, @"^\s*#.*$", "", RegexOptions.Multiline);
+
             Log("Falling Back to SimpleJSON");
             JsonClass affectRulesTemp = Json.Parse(affectRulesJson).AsObject;
 
