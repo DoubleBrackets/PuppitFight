@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f794daa269f99743b0285b9b99eb83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _affectRuleFilePath: Assets/GameData/AffectRules/movement_rules.json
+  _affectRuleFilePath: AffectRules/movement_rules.json
   _affectVectorContainer: {fileID: 9007507862921583579}
   _modifierProviderContainer: {fileID: 1316210664086027930}
   _actionProviderContainer: {fileID: 1316210664086027930}
@@ -386,7 +386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f794daa269f99743b0285b9b99eb83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _affectRuleFilePath: Assets/GameData/AffectRules/attacking_rules.json
+  _affectRuleFilePath: AffectRules/attacking_rules.json
   _affectVectorContainer: {fileID: 9007507862921583579}
   _modifierProviderContainer: {fileID: 6415470930837470261}
   _actionProviderContainer: {fileID: 6415470930837470261}

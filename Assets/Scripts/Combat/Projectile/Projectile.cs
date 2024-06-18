@@ -13,6 +13,9 @@ public class Projectile : MonoBehaviour
     private float _damage;
 
     [SerializeField]
+    private float _lifetime;
+
+    [SerializeField]
     private LayerMask _hitLayer;
 
     [SerializeField]
@@ -20,6 +23,20 @@ public class Projectile : MonoBehaviour
 
     [SerializeField]
     private UnityEvent _onHit;
+
+    private float _timer;
+
+    private void Update()
+    {
+        _timer += Time.deltaTime;
+        if (_timer >= _lifetime)
+        {
+            _timer = float.MinValue;
+            _onHit.Invoke();
+            _rb.isKinematic = true;
+            Destroy(gameObject, 1f);
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {

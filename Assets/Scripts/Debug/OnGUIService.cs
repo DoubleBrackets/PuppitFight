@@ -10,6 +10,8 @@ public class OnGUIService : MonoBehaviour
 
     public event Action OnGUIEvent;
 
+    private bool _showDebug;
+
     private void Awake()
     {
         if (Instance == null)
@@ -22,10 +24,28 @@ public class OnGUIService : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            ToggleDebug();
+        }
+    }
+
     private void OnGUI()
     {
+        if (!_showDebug)
+        {
+            return;
+        }
+
         GUI.color = Color.black;
         OnGUIEvent?.Invoke();
         GUI.color = Color.white;
+    }
+
+    public void ToggleDebug()
+    {
+        _showDebug = !_showDebug;
     }
 }

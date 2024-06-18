@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Puppitor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 /// <summary>
 ///     Monobehavior that wraps an Affector and links it to various controllers (e.g Action Provider). Has a target
@@ -56,7 +57,7 @@ public class PuppitLimb : MonoBehaviour
         if (_actionProvider != null)
         {
             _lastAction = _actionProvider.GetCurrentAction();
-            _affecter.UpdateAffect(AffectVector, _lastAction, _modifier, Time.deltaTime);
+            ApplyAffector(AffectVector, _lastAction, _modifier, Time.deltaTime);
         }
     }
 
@@ -122,46 +123,77 @@ public class PuppitLimb : MonoBehaviour
     /// <summary>
     ///     Wraps the Affector's UpdateAffect method. Intended for use with AI action selection
     /// </summary>
-    public void ApplyAffector(AffectVector affectVector, string actionName, string modifierName)
+    public void ApplyAffector(AffectVector affectVector, string actionName, string modifierName, float multiplier)
     {
-        _affecter.UpdateAffect(affectVector, actionName, modifierName, Time.deltaTime);
+        try
+        {
+            _affecter.UpdateAffect(affectVector, actionName, modifierName, multiplier);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error applying affector: {e}");
+            throw;
+        }
     }
 
     private void SetupAffector()
     {
         try
         {
-            string jsonString = File.ReadAllText(_affectRuleFilePath);
+            UnityWebRequest req;
+            var jsonString = string.Empty;
+            string path = Application.streamingAssetsPath + "/" + _affectRuleFilePath;
+            Debug.Log($"path: {path}");
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Debug.Log("Unity webgl");
+            UnityWebRequest request = UnityWebRequest.Get(path);
+            UnityWebRequestAsyncOperation handler = request.SendWebRequest();
 
-            _affecter = new Affecter(jsonString, equilibriumAction: _equilibriumAction);
+            handler.completed += (op) =>
+            {
+                jsonString = handler.webRequest.downloadHandler.text;
+                FinishSetup(jsonString);
+            };
 
-            // Append, in case multiple affectors are sharing the same affect vector
-            _affecter.AppendToAffectVector(AffectVector);
-
-            var modifierProvider = _modifierProviderContainer.GetComponent<IModifierProvider>();
-            if (modifierProvider == null)
-            {
-                Debug.LogWarning("No modifier provider found");
-            }
-            else
-            {
-                SetModifierProvider(modifierProvider);
-            }
-
-            var actionProvider = _actionProviderContainer.GetComponent<IActionProvider>();
-            if (actionProvider == null)
-            {
-                Debug.LogWarning("No action provider found");
-            }
-            else
-            {
-                SetActionProvider(actionProvider);
-            }
+#else
+            jsonString =
+                File.ReadAllText(path);
+            Debug.Log("File read. JSON: " + jsonString);
+            FinishSetup(jsonString);
+#endif
         }
         catch (Exception e)
         {
             Debug.LogError($"Error setting up actor {e}");
             throw;
+        }
+    }
+
+    private void FinishSetup(string jsonString)
+    {
+        _affecter = new Affecter(jsonString, equilibriumAction: _equilibriumAction);
+
+        // Append, in case multiple affectors are sharing the same affect vector
+        _affecter.AppendToAffectVector(AffectVector);
+
+        var modifierProvider = _modifierProviderContainer.GetComponent<IModifierProvider>();
+        if (modifierProvider == null)
+        {
+            Debug.LogWarning("No modifier provider found");
+        }
+        else
+        {
+            SetModifierProvider(modifierProvider);
+        }
+
+        var actionProvider = _actionProviderContainer.GetComponent<IActionProvider>();
+        if (actionProvider == null)
+        {
+            Debug.LogWarning("No action provider found");
+        }
+        else
+        {
+            SetActionProvider(actionProvider);
         }
 
         OnFinishSetup?.Invoke();

@@ -15,6 +15,9 @@ public class PuppitGreedySelector : MonoBehaviour
     [SerializeField]
     private GameObject _affectProviderContainer;
 
+    [SerializeField]
+    private bool _isOneshots;
+
     public string SelectedAction => _selectedAction;
     public string SelectedModifier => _selectedModifier;
 
@@ -52,7 +55,8 @@ public class PuppitGreedySelector : MonoBehaviour
             foreach (string modifier in _modifierNames)
             {
                 var newAffectVector = new AffectVector(currentAffectVector);
-                _puppitLimb.ApplyAffector(newAffectVector, action, modifier);
+                float multiplier = _isOneshots ? 1.0f : Time.deltaTime;
+                _puppitLimb.ApplyAffector(newAffectVector, action, modifier, multiplier);
 
                 double score = targetAffectVector.DotProduct(newAffectVector);
 

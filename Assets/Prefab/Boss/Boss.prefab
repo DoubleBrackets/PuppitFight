@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f794daa269f99743b0285b9b99eb83c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _affectRuleFilePath: Assets/GameData/AffectRules/movement_rules.json
+  _affectRuleFilePath: AffectRules/movement_rules.json
   _affectVectorContainer: {fileID: 4764549566757438125}
   _modifierProviderContainer: {fileID: 7274219068619088554}
   _actionProviderContainer: {fileID: 7274219068619088554}
