@@ -1,6 +1,6 @@
 ### Puppit Fight
 Puppit Fight is a simple real-time action game demo utilizing the Puppitor system for character expression. Made with Unity 2022.3.21f
-
+Character Affect Rules are in the Assets/StreamingAssets folder
 Playable builds at: https://datame.itch.io/puppit-fight
 
 ### References
