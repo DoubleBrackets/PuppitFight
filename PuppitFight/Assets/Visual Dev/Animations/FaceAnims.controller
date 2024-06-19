@@ -86,7 +86,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: wariness
+    m_ConditionEvent: wary
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1523136367961715058}
@@ -111,7 +111,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: aggressiveness
+    m_ConditionEvent: aggressive
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -2764596425167100649}
@@ -136,7 +136,7 @@ AnimatorController:
   m_Name: FaceAnims
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: wariness
+  - m_Name: wary
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -148,7 +148,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: aggressiveness
+  - m_Name: aggressive
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0

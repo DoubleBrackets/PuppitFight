@@ -1,22 +1,11 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 public class BossMovement : MonoBehaviour, IModifierProvider, IActionProvider
 {
-    private enum Modifiers
-    {
-        Towards,
-        Away,
-        Sideways,
-        Neutral
-    }
-
-    private enum Actions
-    {
-        Moving,
-        Nothing,
-        Resting
-    }
+    [SerializeField]
+    private PuppitGreedySelector _greedySelector;
 
     [SerializeField]
     private Transform _target;
@@ -33,17 +22,44 @@ public class BossMovement : MonoBehaviour, IModifierProvider, IActionProvider
     [SerializeField]
     private Rigidbody2D _rb;
 
-    private Modifiers _currentModifier = Modifiers.Neutral;
-    private Actions _currentAction = Actions.Resting;
+    private AffectTypes.MovementModifiers _currentModifier = AffectTypes.MovementModifiers.Neutral;
+    private AffectTypes.MovementActions _currentAction = AffectTypes.MovementActions.Resting;
 
     private void Update()
     {
         Vector2 vectorToTarget = _target.position - transform.position;
+        Vector2 input = Vector2.zero;
+        Vector2 targetVelocity = Vector2.zero;
 
-        Vector2 targetVelocity = vectorToTarget.normalized * _speed;
-        if (vectorToTarget.magnitude < _tetherDistance)
+        PuppitGreedySelector.Selection selectedActionModifier = _greedySelector.Selections.First();
+
+        if (selectedActionModifier.Action == AffectTypes.MovementActions.Moving.ToName())
         {
-            targetVelocity *= -1;
+            if (selectedActionModifier.Modifier == AffectTypes.MovementModifiers.Towards.ToName())
+            {
+                targetVelocity = vectorToTarget.normalized * _speed;
+            }
+            else if (selectedActionModifier.Modifier == AffectTypes.MovementModifiers.Away.ToName())
+            {
+                targetVelocity = -vectorToTarget.normalized * _speed;
+
+                if (vectorToTarget.magnitude > _tetherDistance)
+                {
+                    targetVelocity *= -1;
+                }
+            }
+            else if (selectedActionModifier.Modifier == AffectTypes.MovementModifiers.Sideways.ToName())
+            {
+                targetVelocity = new Vector2(vectorToTarget.y, -vectorToTarget.x).normalized * _speed;
+            }
+            else
+            {
+                targetVelocity = Vector2.zero;
+            }
+        }
+        else
+        {
+            targetVelocity = Vector2.zero;
         }
 
         _rb.velocity = Vector2.MoveTowards(_rb.velocity, targetVelocity, _acceleration * Time.deltaTime);
@@ -70,15 +86,15 @@ public class BossMovement : MonoBehaviour, IModifierProvider, IActionProvider
 
         if (dot > 0.6f)
         {
-            _currentModifier = Modifiers.Towards;
+            _currentModifier = AffectTypes.MovementModifiers.Towards;
         }
         else if (dot < -0.6f)
         {
-            _currentModifier = Modifiers.Away;
+            _currentModifier = AffectTypes.MovementModifiers.Away;
         }
         else
         {
-            _currentModifier = Modifiers.Sideways;
+            _currentModifier = AffectTypes.MovementModifiers.Sideways;
         }
     }
 
@@ -86,11 +102,11 @@ public class BossMovement : MonoBehaviour, IModifierProvider, IActionProvider
     {
         if (input.magnitude > 0)
         {
-            _currentAction = Actions.Moving;
+            _currentAction = AffectTypes.MovementActions.Moving;
         }
         else
         {
-            _currentAction = Actions.Nothing;
+            _currentAction = AffectTypes.MovementActions.Resting;
         }
     }
 }

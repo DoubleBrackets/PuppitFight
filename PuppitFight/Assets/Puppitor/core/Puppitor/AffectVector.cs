@@ -147,5 +147,22 @@ namespace Puppitor
 
             return dotProduct;
         }
+
+        public void Normalize()
+        {
+            double sum = _affectVector.Values.Sum();
+
+            if (sum == 0)
+            {
+                return;
+            }
+
+            var keys = new List<string>(_affectVector.Keys);
+
+            foreach (string affect in keys)
+            {
+                _affectVector[affect] /= sum;
+            }
+        }
     }
 }

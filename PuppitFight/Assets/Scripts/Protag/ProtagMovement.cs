@@ -3,21 +3,6 @@ using UnityEngine;
 
 public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
 {
-    private enum Modifiers
-    {
-        Towards,
-        Away,
-        Sideways,
-        Neutral
-    }
-
-    private enum Actions
-    {
-        Moving,
-        Nothing,
-        Resting
-    }
-
     [SerializeField]
     private float _speed;
 
@@ -30,9 +15,9 @@ public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
     [SerializeField]
     private Transform _target;
 
-    private Modifiers _currentModifier = Modifiers.Neutral;
+    private AffectTypes.MovementModifiers _currentModifier = AffectTypes.MovementModifiers.Neutral;
 
-    private Actions _currentAction = Actions.Resting;
+    private AffectTypes.MovementActions _currentAction = AffectTypes.MovementActions.Resting;
 
     private void Update()
     {
@@ -44,9 +29,9 @@ public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
         CalculateAction(input);
 
         // Hard coded pair
-        if (_currentAction == Actions.Nothing)
+        if (_currentAction == AffectTypes.MovementActions.Nothing)
         {
-            _currentModifier = Modifiers.Neutral;
+            _currentModifier = AffectTypes.MovementModifiers.Neutral;
         }
 
         _rb.velocity = Vector2.MoveTowards(_rb.velocity, input.normalized * _speed, _accel * Time.deltaTime);
@@ -68,17 +53,17 @@ public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
     {
         float dot = Vector2.Dot(vecToTarget.normalized, input);
 
-        if (dot > 0.6f)
+        if (dot > 0.7f)
         {
-            _currentModifier = Modifiers.Towards;
+            _currentModifier = AffectTypes.MovementModifiers.Towards;
         }
-        else if (dot < -0.6f)
+        else if (dot < -0.7f)
         {
-            _currentModifier = Modifiers.Away;
+            _currentModifier = AffectTypes.MovementModifiers.Away;
         }
         else
         {
-            _currentModifier = Modifiers.Sideways;
+            _currentModifier = AffectTypes.MovementModifiers.Sideways;
         }
     }
 
@@ -86,11 +71,11 @@ public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
     {
         if (input.magnitude > 0)
         {
-            _currentAction = Actions.Moving;
+            _currentAction = AffectTypes.MovementActions.Moving;
         }
         else
         {
-            _currentAction = Actions.Nothing;
+            _currentAction = AffectTypes.MovementActions.Nothing;
         }
     }
 }

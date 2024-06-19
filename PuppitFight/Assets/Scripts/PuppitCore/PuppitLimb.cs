@@ -27,6 +27,9 @@ public class PuppitLimb : MonoBehaviour
     [SerializeField]
     private string _equilibriumAction;
 
+    [SerializeField]
+    private Color _guiColor;
+
     private AffectVector AffectVector => _affectVectorContainer.AffectVector;
 
     public event Action OnFinishSetup;
@@ -201,11 +204,13 @@ public class PuppitLimb : MonoBehaviour
 
     private void DrawDebugGUI()
     {
+        GUI.color = _guiColor;
         AffectVector.DrawAffectVectorGUI();
         GUILayout.Label($"Last action: {_lastAction}");
         GUILayout.Label($"Modifier: {_modifier}");
         GUILayout.Label($"Prevailing affect: {_affecter.GetPrevailingAffect(AffectVector)}");
         GUILayout.Label($"Oneshot action: {_lastOneshotAction} ({_oneshotActionCount})");
+        GUI.color = Color.white;
     }
 
     public string GetPrevailingAffect()

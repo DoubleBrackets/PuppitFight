@@ -193,10 +193,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64dc54412ec24374aaafa89b807e8ad5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _greedySelector: {fileID: 5797436481469744522}
   _target: {fileID: 0}
   _tetherDistance: 5
   _acceleration: 25
-  _speed: 5
+  _speed: 7
   _rb: {fileID: 6261045221400772063}
 --- !u!1 &7601846741500522916
 GameObject:
@@ -258,6 +259,7 @@ GameObject:
   - component: {fileID: 4764549566757438125}
   - component: {fileID: 2754433646926865343}
   - component: {fileID: 5797436481469744522}
+  - component: {fileID: 140398222984834279}
   m_Layer: 0
   m_Name: Puppit
   m_TagString: Untagged
@@ -314,13 +316,36 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7741995624211960755}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7c7fcfd324a9044eaeed399f6d89b00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _puppitLimb: {fileID: 1567641505787903908}
-  _affectProviderContainer: {fileID: 0}
+  _affectProviderContainer: {fileID: 7741995624211960755}
+  _isOneshots: 0
+--- !u!114 &140398222984834279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7741995624211960755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc351a8cd9613924ea8dedadccc9ce9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _puppitLimb: {fileID: 0}
+  _affectMappings:
+  - SourceAffect: aggressive
+    TargetAffect: fear
+  - SourceAffect: fear
+    TargetAffect: aggressive
+  - SourceAffect: wary
+    TargetAffect: wary
+  - SourceAffect: confusion
+    TargetAffect: wary
 --- !u!1 &7926718243344904730
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,6 +395,7 @@ MonoBehaviour:
   _modifierProviderContainer: {fileID: 7274219068619088554}
   _actionProviderContainer: {fileID: 7274219068619088554}
   _equilibriumAction: resting
+  _guiColor: {r: 1, g: 0.1521698, b: 0, a: 1}
 --- !u!1 &8034091923009794667
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,7 +493,7 @@ MonoBehaviour:
   _onHealthChanged: {fileID: 11400000, guid: ffa973edd93e34a42b5290b718cca62c, type: 2}
   _onMaxHealthSet: {fileID: 11400000, guid: 6ca02e8f7a9783b4dbdba3b134ef184b, type: 2}
   _onDeath: {fileID: 11400000, guid: 4933835de5e649a4bbfce9f2ed94564e, type: 2}
-  _maxHealth: 500
+  _maxHealth: 250
 --- !u!1001 &6810652620790177146
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a081d89cbc3c64c979f6befff31d2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 6
+  _speed: 8
   _accel: 35
   _rb: {fileID: 883033894628160592}
   _target: {fileID: 0}
@@ -159,6 +159,7 @@ MonoBehaviour:
   _modifierProviderContainer: {fileID: 1316210664086027930}
   _actionProviderContainer: {fileID: 1316210664086027930}
   _equilibriumAction: resting
+  _guiColor: {r: 0.29874206, g: 0.45578268, b: 1, a: 1}
 --- !u!1 &1818668706944290538
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,7 +257,7 @@ MonoBehaviour:
   _onHealthChanged: {fileID: 11400000, guid: 726b38f22dd05c042ac527db111476fa, type: 2}
   _onMaxHealthSet: {fileID: 11400000, guid: 0dbf73e2db12c75459987f08157918d9, type: 2}
   _onDeath: {fileID: 11400000, guid: 702fe52416fb0b44f844957771390073, type: 2}
-  _maxHealth: 500
+  _maxHealth: 150
 --- !u!1 &4571889299039628498
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,6 +392,7 @@ MonoBehaviour:
   _modifierProviderContainer: {fileID: 6415470930837470261}
   _actionProviderContainer: {fileID: 6415470930837470261}
   _equilibriumAction: resting
+  _guiColor: {r: 0.29874206, g: 0.45578268, b: 1, a: 1}
 --- !u!1 &5825253870993381524
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,6 +482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a236a9b7f1b25a64286f86d35a995c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _puppitLimb: {fileID: 7589308293096396100}
   _bulletPrefab: {fileID: 6910266087782661317, guid: 441e483c327205d4d80a0c5934dfd481, type: 3}
   _equilibriumAction: 1
   _target: {fileID: 0}

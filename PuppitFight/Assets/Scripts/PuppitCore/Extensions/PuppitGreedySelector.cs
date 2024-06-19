@@ -8,6 +8,13 @@ using UnityEngine.Serialization;
 /// </summary>
 public class PuppitGreedySelector : MonoBehaviour
 {
+    public struct Selection
+    {
+        public string Action;
+        public string Modifier;
+        public double Score;
+    }
+
     [FormerlySerializedAs("_puppit")]
     [SerializeField]
     private PuppitLimb _puppitLimb;
@@ -18,16 +25,14 @@ public class PuppitGreedySelector : MonoBehaviour
     [SerializeField]
     private bool _isOneshots;
 
-    public string SelectedAction => _selectedAction;
-    public string SelectedModifier => _selectedModifier;
+    public IEnumerable<Selection> Selections => _selections;
+
+    private readonly List<Selection> _selections = new();
 
     private List<string> _actionNames;
     private List<string> _modifierNames;
 
     private IAffectProvider _targetAffectProvider;
-
-    private string _selectedAction;
-    private string _selectedModifier;
 
     private void Awake()
     {
@@ -41,13 +46,16 @@ public class PuppitGreedySelector : MonoBehaviour
 
     private void Update()
     {
+        _selections.Clear();
+
         AffectVector currentAffectVector = _puppitLimb.GetAffectVectorCopy();
 
         // The "goal" affect vector is one where the target affect provider is 1.0f
         AffectVector targetAffectVector = _puppitLimb.MakeAffectVector();
-        targetAffectVector[_targetAffectProvider.GetCurrentAffectName()] = 1.0f;
+        string targetAffectName = _targetAffectProvider.GetCurrentAffectName();
+        targetAffectVector[targetAffectName] = 1.0f;
 
-        double bestScore = targetAffectVector.DotProduct(currentAffectVector);
+        targetAffectVector.Normalize();
 
         // Try all possible action/modifier pairs and select the one that gets closest to the target affect vector
         foreach (string action in _actionNames)
@@ -58,15 +66,28 @@ public class PuppitGreedySelector : MonoBehaviour
                 float multiplier = _isOneshots ? 1.0f : Time.deltaTime;
                 _puppitLimb.ApplyAffector(newAffectVector, action, modifier, multiplier);
 
+                newAffectVector.Normalize();
+
                 double score = targetAffectVector.DotProduct(newAffectVector);
 
-                if (score > bestScore)
+                _selections.Add(new Selection
                 {
-                    bestScore = score;
-                    _selectedAction = action;
-                    _selectedModifier = modifier;
-                }
+                    Action = action,
+                    Modifier = modifier,
+                    Score = score
+                });
             }
+        }
+
+        // Sort the selections by score, descending
+        _selections.Sort((a, b) => b.Score.CompareTo(a.Score));
+    }
+
+    private void OnValidate()
+    {
+        if (_affectProviderContainer.GetComponent<IAffectProvider>() == null)
+        {
+            Debug.LogError("No IAffectProvider found in container");
         }
     }
 

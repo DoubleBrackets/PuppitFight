@@ -1,5 +1,5 @@
 {
-  "aggressiveness" : {
+  "aggressive" : {
     "actions" : {
       "moving" : 0.2,
       "nothing" : -0.1,
@@ -33,7 +33,7 @@
     },
     "equilibrium_point" : 0.5
   },
-  "wariness" : {
+  "wary" : {
     "actions" : {
       "moving" : 0.1,
       "nothing" : -0.01,

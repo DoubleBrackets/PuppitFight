@@ -3,24 +3,14 @@ using UnityEngine;
 
 public class ProtagAttacking : MonoBehaviour, IActionProvider, IModifierProvider
 {
-    private enum Modifiers
-    {
-        Towards,
-        Away,
-        Neutral
-    }
-
-    private enum Actions
-    {
-        Shoot,
-        Resting
-    }
+    [SerializeField]
+    private PuppitLimb _puppitLimb;
 
     [SerializeField]
     private Projectile _bulletPrefab;
 
     [SerializeField]
-    private Actions _equilibriumAction;
+    private AffectTypes.AttackActions _equilibriumAction;
 
     [SerializeField]
     private Transform _target;
@@ -30,7 +20,7 @@ public class ProtagAttacking : MonoBehaviour, IActionProvider, IModifierProvider
 
     private float _timer;
 
-    private Modifiers _currentModifier = Modifiers.Neutral;
+    private AffectTypes.AttackModifiers _currentModifier = AffectTypes.AttackModifiers.Neutral;
 
     private void Update()
     {
@@ -41,7 +31,6 @@ public class ProtagAttacking : MonoBehaviour, IActionProvider, IModifierProvider
 
         if (Input.GetMouseButton(0) && _timer <= 0)
         {
-            _timer = _cooldown;
             Shoot();
         }
     }
@@ -70,16 +59,26 @@ public class ProtagAttacking : MonoBehaviour, IActionProvider, IModifierProvider
 
         if (Vector2.Dot(shootDir, targetDirection) > 0)
         {
-            _currentModifier = Modifiers.Towards;
+            _currentModifier = AffectTypes.AttackModifiers.Towards;
         }
         else
         {
-            _currentModifier = Modifiers.Away;
+            _currentModifier = AffectTypes.AttackModifiers.Away;
         }
 
         bullet.Launch(transform.position,
             shootDir);
 
-        OnOneshotAction?.Invoke(Actions.Shoot.ToString().ToLower());
+        // Express aggression with fast cooldown
+        if (_puppitLimb.GetPrevailingAffect() == AffectTypes.Emotions.Aggressive.ToName())
+        {
+            _timer = _cooldown / 2;
+        }
+        else
+        {
+            _timer = _cooldown;
+        }
+
+        OnOneshotAction?.Invoke(AffectTypes.AttackActions.Shoot.ToName());
     }
 }

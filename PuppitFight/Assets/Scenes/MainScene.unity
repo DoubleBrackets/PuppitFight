@@ -330,7 +330,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 100, y: 100, z: 1}
+  m_LocalScale: {x: 2000, y: 2000, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3110,6 +3110,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 368483197}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1630971853 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 805843452198788597, guid: 18ce0f3c630b6a141a2fec24ecb936c6, type: 3}
+  m_PrefabInstance: {fileID: 4589122839753034193}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f794daa269f99743b0285b9b99eb83c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1819701973
 GameObject:
   m_ObjectHideFlags: 0
@@ -4169,6 +4180,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 140398222984834279, guid: 3face09b82cc5d3458c3b451431c6808, type: 3}
+      propertyPath: _puppitLimb
+      value: 
+      objectReference: {fileID: 1630971853}
     - target: {fileID: 4824572767257202421, guid: 3face09b82cc5d3458c3b451431c6808, type: 3}
       propertyPath: _target
       value: 
