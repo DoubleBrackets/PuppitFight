@@ -2,7 +2,7 @@ name: Unity-Builder
 run-name: ${{ github.actor }} is building ${{ github.ref_name }}
 
 env:
-  PROJ_DIR: '.'
+  PROJ_DIR: PuppitFight
   PROJ_NAME: PuppitFight
   BUILD_NAME_PREFIX: Build
   BUILD_DIR: build
