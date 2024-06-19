@@ -2,7 +2,7 @@
   "aggressive" : {
     # Attacking towards the target generally increases aggressiveness
     "actions" : {
-      "shoot" : 0.025,
+      "shoot" : 0.15,
       "resting" : 0
     },
     "modifiers" : {

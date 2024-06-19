@@ -4375,6 +4375,10 @@ PrefabInstance:
       propertyPath: _puppitLimb
       value: 
       objectReference: {fileID: 1630971853}
+    - target: {fileID: 140398222984834279, guid: 3face09b82cc5d3458c3b451431c6808, type: 3}
+      propertyPath: _affectMappings.Array.data[3].TargetAffect
+      value: confusion
+      objectReference: {fileID: 0}
     - target: {fileID: 966871737121335122, guid: 3face09b82cc5d3458c3b451431c6808, type: 3}
       propertyPath: _regenInterval
       value: 1e+12
