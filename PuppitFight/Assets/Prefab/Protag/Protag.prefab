@@ -255,9 +255,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hitbox: {fileID: 2824525912064514849}
   _onHealthChanged: {fileID: 11400000, guid: 726b38f22dd05c042ac527db111476fa, type: 2}
+  _onDamage: {fileID: 11400000, guid: ab19068b7c8b1a445b3a2d845f285938, type: 2}
   _onMaxHealthSet: {fileID: 11400000, guid: 0dbf73e2db12c75459987f08157918d9, type: 2}
   _onDeath: {fileID: 11400000, guid: 702fe52416fb0b44f844957771390073, type: 2}
-  _maxHealth: 150
+  _maxHealth: 12
+  _regenInterval: 3
 --- !u!1 &4571889299039628498
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,7 +393,7 @@ MonoBehaviour:
   _affectVectorContainer: {fileID: 9007507862921583579}
   _modifierProviderContainer: {fileID: 6415470930837470261}
   _actionProviderContainer: {fileID: 6415470930837470261}
-  _equilibriumAction: resting
+  _equilibriumAction: 
   _guiColor: {r: 0.29874206, g: 0.45578268, b: 1, a: 1}
 --- !u!1 &5825253870993381524
 GameObject:
@@ -497,6 +499,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3794478761090017041}
   - component: {fileID: 883033894628160592}
+  - component: {fileID: 2287508031802312851}
   m_Layer: 0
   m_Name: Protag
   m_TagString: Untagged
@@ -551,6 +554,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &2287508031802312851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8797704343436468868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9214094b653128418495ff1682d5d1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _event: {fileID: 11400000, guid: 702fe52416fb0b44f844957771390073, type: 2}
+  _active: 0
+  _target: {fileID: 8797704343436468868}
 --- !u!1001 &5317515624447505690
 PrefabInstance:
   m_ObjectHideFlags: 0

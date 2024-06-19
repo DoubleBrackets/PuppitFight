@@ -53,11 +53,11 @@ public class ProtagMovement : MonoBehaviour, IModifierProvider, IActionProvider
     {
         float dot = Vector2.Dot(vecToTarget.normalized, input);
 
-        if (dot > 0.7f)
+        if (dot > 0.6f)
         {
             _currentModifier = AffectTypes.MovementModifiers.Towards;
         }
-        else if (dot < -0.7f)
+        else if (dot < -0.6f)
         {
             _currentModifier = AffectTypes.MovementModifiers.Away;
         }

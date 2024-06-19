@@ -29,6 +29,8 @@ public class ProtagAttacking : MonoBehaviour, IActionProvider, IModifierProvider
             _timer -= Time.deltaTime;
         }
 
+        _currentModifier = AffectTypes.AttackModifiers.Neutral;
+
         if (Input.GetMouseButton(0) && _timer <= 0)
         {
             Shoot();

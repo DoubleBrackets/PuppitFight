@@ -19,6 +19,5 @@ public class AffectVectorContainer : MonoBehaviour
         }
     }
 
-    [SerializeField]
     private AffectVector _affectVector;
 }

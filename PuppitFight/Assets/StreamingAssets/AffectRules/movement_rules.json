@@ -1,14 +1,14 @@
 {
   "aggressive" : {
     "actions" : {
-      "moving" : 0.2,
+      "moving" : 0.1,
       "nothing" : -0.1,
-      "resting" : 0.01
+      "resting" : 0.02
     },
     "modifiers" : {
       "towards" : 1,
       "away" : -1,
-      "sideways" : -0.4,
+      "sideways" : -0.5,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -18,14 +18,14 @@
   },
   "fear" : {
     "actions" : {
-      "moving" : 0.2,
+      "moving" : 0.1,
       "nothing" : 0.025,
-      "resting" : 0.01
+      "resting" : 0.02
     },
     "modifiers" : {
       "towards" : -1.0,
       "away" : 1.0,
-      "sideways" : -0.4,
+      "sideways" : -0.3,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -37,12 +37,12 @@
     "actions" : {
       "moving" : 0.1,
       "nothing" : -0.01,
-      "resting" : 0.01
+      "resting" : 0.02
     },
     "modifiers" : {
-      "towards" : -0.6,
-      "away" : -0.4,
-      "sideways" : 0.8,
+      "towards" : -0.4,
+      "away" : -0.35,
+      "sideways" : 0.6,
       "neutral" : 1.0
     },
     "adjacent_affects" : {
@@ -54,7 +54,7 @@
     "actions" : {
       "moving" : -0.05,
       "nothing" : 0.15,
-      "resting" : 0.01
+      "resting" : 0.02
     },
     "modifiers" : {
       "towards" : 1.0,

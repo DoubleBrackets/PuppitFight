@@ -105,8 +105,7 @@ public class PuppitLimb : MonoBehaviour
             _affecter.UpdateAffect(
                 AffectVector,
                 actionName,
-                _modifierProvider.GetCurrentModifier(),
-                Time.deltaTime);
+                _modifierProvider.GetCurrentModifier());
 
             if (_lastOneshotAction != actionName)
             {
